@@ -1,0 +1,114 @@
+## index.html
+
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lost & Found — Hackathon</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+<h1>Lost & Found — Hackathon</h1>
+<p class="tagline">Report lost or found items. Built for quick demos.</p>
+</header>
+
+
+<main class="container">
+
+
+<section class="card" id="report-card" aria-labelledby="report-heading">
+<h2 id="report-heading">Report an item</h2>
+<form id="itemForm">
+<div class="row">
+<label for="type">Type</label>
+<select id="type" required>
+<option value="Lost">Lost</option>
+<option value="Found">Found</option>
+</select>
+</div>
+
+<div class="row">
+<label for="title">Title</label>
+<input id="title" type="text" placeholder="e.g. Black Wallet" required>
+</div>
+
+
+<div class="row">
+<label for="desc">Description</label>
+<textarea id="desc" rows="3" placeholder="Short description"></textarea>
+</div>
+
+<div class="row">
+<label for="location">Location</label>
+<input id="location" type="text" placeholder="e.g. Library, 2nd floor">
+</div>
+
+<div class="row">
+<label for="date">Date</label>
+<input id="date" type="date">
+</div>
+
+
+<div class="row">
+<label for="contact">Contact (phone or email)</label>
+<input id="contact" type="text" placeholder="Your phone or email">
+</div>
+
+
+<div class="row">
+<label for="photo">Photo URL (optional)</label>
+<input id="photo" type="url" placeholder="https://...">
+</div>
+
+
+<div class="actions">
+<button type="submit" class="btn">Report</button>
+<button type="button" id="clearForm" class="btn ghost">Clear</button>
+</div>
+</form>
+</section>
+
+<section class="card" id="controls-card">
+<div class="controls-row">
+<input id="searchInput" type="search" placeholder="Search title, location, contact..." aria-label="Search items">
+<select id="filterSelect" aria-label="Filter by type">
+<option value="all">All</option>
+<option value="Lost">Lost</option>
+<option value="Found">Found</option>
+<option value="claimed">Claimed</option>
+</select>
+<button id="exportBtn" class="btn small">Export JSON</button>
+<input id="importFile" type="file" accept="application/json" style="display:none">
+<button id="importBtn" class="btn small ghost">Import JSON</button>
+<button id="resetAll" class="btn small danger">Reset DB</button>
+</div>
+</section>
+
+
+<section class="lists" id="lists">
+<div class="list card" id="lostListCard">
+<h3>Lost items</h3>
+<ul id="lostList" class="item-list" aria-live="polite"></ul>
+</div>
+<div class="list card" id="foundListCard">
+<h3>Found items</h3>
+<ul id="foundList" class="item-list" aria-live="polite"></ul>
+</div>
+</section>
+
+
+</main>
+
+
+<footer class="site-footer">
+<small>Demo for Hackathon — press export to show persistence. Built with HTML/CSS/JS.</small>
+</footer>
+
+
+<script src="app.js"></script>
+</body>
+</html>

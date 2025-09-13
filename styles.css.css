@@ -1,0 +1,44 @@
+## styles.css
+
+
+```css
+:root{
+--bg:#f5f7fb;
+--card:#ffffff;
+--muted:#666;
+--accent:#4169e1;
+--danger:#e04f5f;
+--radius:12px;
+--gap:14px;
+font-size:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+.site-header{padding:20px 18px;text-align:center}
+.site-header h1{margin:0;font-size:1.6rem}
+.tagline{color:var(--muted);margin-top:6px}
+.container{max-width:1000px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(20,20,40,0.04)}
+.row{margin-bottom:10px}
+.row label{display:block;font-size:0.86rem;margin-bottom:6px;color:var(--muted)}
+.row input[type=text],.row input[type=date],.row input[type=url],.row select,.row textarea,.controls-row input[type=search]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef}
+.actions{display:flex;gap:8px}
+.btn{background:var(--accent);color:#fff;padding:8px 12px;border:none;border-radius:10px;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid #ddd;color:var(--muted)}
+.btn.small{padding:6px 8px;font-size:0.85rem}
+.btn.tiny{padding:4px 6px;font-size:0.78rem}
+.btn.danger{background:var(--danger)}
+.controls-row{display:flex;gap:8px;align-items:center}
+.controls-row input[type=search]{flex:1}
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.item-list{list-style:none;padding:0;margin:0}
+.item{display:flex;justify-content:space-between;align-items:flex-start;padding:10px;border-radius:8px;border:1px solid #f0f2f6;margin-bottom:8px}
+.item-main{display:flex;gap:10px;align-items:flex-start}
+.thumb{width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #eee}
+.meta{color:var(--muted);font-size:0.86rem}
+.desc{margin-top:6px;color:#333}
+.contact{margin-top:6px;font-size:0.85rem;color:var(--muted)}
+.item-actions{display:flex;gap:8px;align-items:center}
+.badge{background:#e0ffe6;color:#066a2a;padding:6px 8px;border-radius:10px;font-size:0.78rem}
+@media (max-width:780px){.lists{grid-template-columns:1fr}.controls-row{flex-direction:column;align-items:stretch}}
+```
