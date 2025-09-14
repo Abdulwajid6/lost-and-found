@@ -160,3 +160,14 @@ resetAllBtn.addEventListener('click', ()=>{ if(confirm('Erase all saved items?')
 load();
 renderLists();
 })();
+// Handle Report Form Submission
+document.getElementById("reportForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    const title = document.getElementById("reportTitle").value;
+    const desc = document.getElementById("reportDescription").value;
+    const contact = document.getElementById("reportContact").value;
+
+    alert("✅ Report submitted!\n\nTitle: " + title + "\nDescription: " + desc + "\nContact: " + contact);
+
+    this.reset(); // Clear the form after submit
+});
