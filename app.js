@@ -41,8 +41,8 @@
   }
   function seedDemo(){
     items = [
-      { id: uid(), type: 'Lost', title: 'Black Wallet', desc:'Leather wallet with student id', location:'Library', date: new Date().toISOString().slice(0,10), contact:'9876543210', photo:'', claimed:false, created:Date.now()},
-      { id: uid(), type: 'Found', title: 'Silver Keychain', desc:'Small key with red ribbon', location:'Cafeteria', date: new Date().toISOString().slice(0,10), contact:'found@college.edu', photo:'', claimed:false, created:Date.now()}
+      { id: uid(), type: 'Lost', title: 'Black Wallet', desc:'Leather wallet with student id', location:'Library', date: new Date().toISOString().slice(0,10), contact:'9876543210', photo:'', claimed:false, created:Date.now() },
+      { id: uid(), type: 'Found', title: 'Silver Keychain', desc:'Small key with red ribbon', location:'Cafeteria', date: new Date().toISOString().slice(0,10), contact:'found@college.edu', photo:'', claimed:false, created:Date.now() }
     ];
     save();
   }
@@ -86,7 +86,7 @@
         <p>${escapeHtml(it.desc)}</p>
         <p><strong>Location:</strong> ${escapeHtml(it.location)} • <strong>Date:</strong> ${escapeHtml(it.date||'')}</p>
         <p><strong>Contact:</strong> ${escapeHtml(it.contact||'-')}</p>
-        ${it.photo ? `<img src="${it.photo}" alt="${it.title}" width="120">` : ""}
+        ${it.photo ? `<img src="${escapeHtml(it.photo)}" alt="${escapeHtml(it.title)}" width="120">` : ""}
         <div>
           ${!it.claimed ? `<button data-id="${it.id}" class="claimBtn">Mark Claimed</button>` : ""}
           <button data-id="${it.id}" class="reportBtn">Report</button>
@@ -104,16 +104,19 @@
 
   function renderReports(){
     reportedList.innerHTML='';
-    if(reports.length===0){ reportedList.innerHTML='<li>No reports yet.</li>'; return; }
+    if(reports.length===0){ 
+      reportedList.innerHTML='<li>No reports yet.</li>'; 
+      return; 
+    }
     reports.forEach(r=>{
       const li=document.createElement('li');
       li.className='item-card';
       li.innerHTML=`
-        <span class="badge ${r.type.toLowerCase()}">${r.type}</span>
+        <span class="badge reported">Reported</span>
         <h3>${escapeHtml(r.title)}</h3>
         <p>${escapeHtml(r.desc)}</p>
         <p><strong>Location:</strong> ${escapeHtml(r.location)} • <strong>Date:</strong> ${escapeHtml(r.date||'')}</p>
-        <p><strong>Reported At:</strong> ${r.reportedAt}</p>
+        <p><strong>Reported At:</strong> ${escapeHtml(r.reportedAt)}</p>
       `;
       reportedList.appendChild(li);
     });
@@ -164,7 +167,11 @@
     reader.readAsText(f); importFile.value='';
   });
   resetAllBtn.addEventListener('click', ()=>{
-    if(confirm('Erase all data?')){ items=[]; reports=[]; save(); saveReports(); renderLists(); renderReports(); }
+    if(confirm('Erase all data?')){ 
+      items=[]; reports=[]; 
+      save(); saveReports(); 
+      renderLists(); renderReports(); 
+    }
   });
 
   // Init
@@ -172,5 +179,4 @@
   renderLists();
   renderReports();
 })();
-
 
