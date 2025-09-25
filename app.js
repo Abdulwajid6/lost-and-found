@@ -8,6 +8,7 @@ const db = window.db; // from index.html
 const itemsRef = collection(db, "items");
 const reportsRef = collection(db, "reports");
 
+// Local arrays (synced with Firestore)
 let items = [];
 let reports = [];
 
@@ -40,16 +41,29 @@ const reportedList = qs('#reportedList');
 
 // ================= CRUD =================
 async function addItem(item){
-  await addDoc(itemsRef, item); // Firestore will assign its own ID
+  await addDoc(itemsRef, item);
 }
+
 async function markClaimed(id){
-  const d = doc(db,"items",id);
-  await updateDoc(d,{ claimed:true });
+  try {
+    const d = doc(db,"items",id);
+    await updateDoc(d,{ claimed:true });
+    alert("Item marked as claimed!");
+  } catch(err) {
+    console.error("Error marking claimed:", err);
+  }
 }
+
 async function deleteItem(id){
-  const d = doc(db,"items",id);
-  await deleteDoc(d);
+  try {
+    const d = doc(db,"items",id);
+    await deleteDoc(d);
+    alert("Item deleted.");
+  } catch(err) {
+    console.error("Error deleting item:", err);
+  }
 }
+
 async function reportItem(id){
   const it = items.find(x=>x.id===id);
   if(!it) return;
@@ -94,7 +108,7 @@ function renderLists(){
         <button data-id="${it.id}" class="deleteBtn delete">Delete</button>
       </div>
     `;
-    if(it.type==='Lost') lostList.appendChild(li);
+    if(it.type==='lost') lostList.appendChild(li);
     else foundList.appendChild(li);
   });
 
@@ -170,18 +184,29 @@ importFile.addEventListener('change',async e=>{
 });
 resetAllBtn.addEventListener('click',async()=>{
   if(confirm('Erase all data?')){
-    items.forEach(it=>deleteItem(it.id));
-    reports.forEach(r=>deleteDoc(doc(db,"reports",r.id)));
+    try {
+      for(const it of items){
+        await deleteItem(it.id);
+      }
+      for(const r of reports){
+        await deleteDoc(doc(db,"reports",r.id));
+      }
+      alert("All data erased.");
+    } catch(err) {
+      console.error("Reset failed:", err);
+    }
   }
 });
 
 // ================= REAL-TIME SYNC =================
 onSnapshot(query(itemsRef,orderBy("created","desc")),snap=>{
-  items=snap.docs.map(d=>({id:d.id,...d.data()})); // use Firestore doc.id
+  items=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderLists();
 });
 onSnapshot(query(reportsRef,orderBy("reportedAt","desc")),snap=>{
   reports=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderReports();
 });
+
+
 
