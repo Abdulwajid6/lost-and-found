@@ -65,14 +65,18 @@ async function deleteItem(id){
 }
 
 async function reportItem(id){
-  const it = items.find(x=>x.id===id);
-  if(!it) return;
-  await addDoc(reportsRef,{ 
-    ...it, 
-    reportedItemId: id, 
-    reportedAt: new Date().toISOString() 
-  });
-  alert("Item reported!");
+  try {
+    const it = items.find(x=>x.id===id);
+    if(!it) return;
+    await addDoc(reportsRef,{ 
+      ...it, 
+      reportedItemId: id, 
+      reportedAt: new Date().toISOString() 
+    });
+    alert("Item reported!");
+  } catch(err){
+    console.error("Error reporting item:", err);
+  }
 }
 
 // ================= RENDER =================
@@ -112,6 +116,7 @@ function renderLists(){
     else foundList.appendChild(li);
   });
 
+  // ✅ Attach event listeners using Firestore IDs
   qsa('.claimBtn').forEach(b=>b.onclick=()=>markClaimed(b.dataset.id));
   qsa('.deleteBtn').forEach(b=>b.onclick=()=>{ if(confirm('Delete item?')) deleteItem(b.dataset.id); });
   qsa('.reportBtn').forEach(b=>b.onclick=()=>reportItem(b.dataset.id));
@@ -200,13 +205,15 @@ resetAllBtn.addEventListener('click',async()=>{
 
 // ================= REAL-TIME SYNC =================
 onSnapshot(query(itemsRef,orderBy("created","desc")),snap=>{
-  items=snap.docs.map(d=>({id:d.id,...d.data()}));
+  items=snap.docs.map(d=>({id:d.id,...d.data()})); // ✅ keep Firestore ID
   renderLists();
 });
 onSnapshot(query(reportsRef,orderBy("reportedAt","desc")),snap=>{
   reports=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderReports();
 });
+
+
 
 
 
