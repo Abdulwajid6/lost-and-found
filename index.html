@@ -89,9 +89,36 @@
   <footer>
     <p>&copy; Made with ❤️ by DYNAMIC DYNAMOS</p>
   </footer>
+  
+<!-- ✅ Firebase SDKs (from CDN) -->
+<script type="module">
+  // Import Firebase libraries
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // 🔹 Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
+    authDomain: "lost-and-found-56582.firebaseapp.com",
+    projectId: "lost-and-found-56582",
+    storageBucket: "lost-and-found-56582.firebasestorage.app",
+    messagingSenderId: "508496273757",
+    appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4",
+    measurementId: "G-4Y29L5QEGV"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app); // 🔹 make db accessible in app.js
+</script>
+
+<!-- ✅ Your app code (must also be module now) -->
+<script type="module" src="app.js"></script>
 
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
