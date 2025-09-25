@@ -8,14 +8,12 @@ const db = window.db; // from index.html
 const itemsRef = collection(db, "items");
 const reportsRef = collection(db, "reports");
 
-// Local arrays (synced with Firestore)
 let items = [];
 let reports = [];
 
 // Helpers
 const qs = s => document.querySelector(s);
 const qsa = s => document.querySelectorAll(s);
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
 // Elements
@@ -42,7 +40,7 @@ const reportedList = qs('#reportedList');
 
 // ================= CRUD =================
 async function addItem(item){
-  await addDoc(itemsRef, item);
+  await addDoc(itemsRef, item); // Firestore will assign its own ID
 }
 async function markClaimed(id){
   const d = doc(db,"items",id);
@@ -55,7 +53,11 @@ async function deleteItem(id){
 async function reportItem(id){
   const it = items.find(x=>x.id===id);
   if(!it) return;
-  await addDoc(reportsRef,{ ...it, reportedAt:new Date().toISOString() });
+  await addDoc(reportsRef,{ 
+    ...it, 
+    reportedItemId: id, 
+    reportedAt: new Date().toISOString() 
+  });
   alert("Item reported!");
 }
 
@@ -125,7 +127,6 @@ function renderReports(){
 itemForm.addEventListener('submit', async e=>{
   e.preventDefault();
   const item={
-    id: uid(),
     type: typeEl.value,
     title: titleEl.value.trim(),
     desc: descEl.value.trim(),
@@ -176,10 +177,11 @@ resetAllBtn.addEventListener('click',async()=>{
 
 // ================= REAL-TIME SYNC =================
 onSnapshot(query(itemsRef,orderBy("created","desc")),snap=>{
-  items=snap.docs.map(d=>({id:d.id,...d.data()}));
+  items=snap.docs.map(d=>({id:d.id,...d.data()})); // use Firestore doc.id
   renderLists();
 });
 onSnapshot(query(reportsRef,orderBy("reportedAt","desc")),snap=>{
   reports=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderReports();
 });
+
