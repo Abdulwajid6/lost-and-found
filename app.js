@@ -21,6 +21,11 @@ function renderItem(itemData, id) {
   const li = document.createElement("li");
   li.className = "item-card";
 
+  // ✅ Check if current user is owner or admin
+  const user = window.auth?.currentUser;
+  const isOwner = user && user.uid === itemData.ownerId;
+  const isAdmin = user && user.email === "admin@gmail.com"; // change to your admin email
+
   li.innerHTML = `
     <span class="badge ${itemData.type}">${itemData.type}</span>
     ${itemData.claimed ? '<span class="badge claimed">Claimed</span>' : ""}
@@ -32,8 +37,8 @@ function renderItem(itemData, id) {
     ${itemData.photo ? `<img src="${itemData.photo}" width="120">` : ""}
     <div class="item-actions">
       ${!itemData.claimed ? `<button class="claimBtn">Mark Claimed</button>` : ""}
-      <button class="deleteBtn">Delete</button>
       <button class="reportBtn">Report</button>
+      ${isOwner || isAdmin ? `<button class="deleteBtn">Delete</button>` : ""}
     </div>
   `;
 
@@ -46,13 +51,16 @@ function renderItem(itemData, id) {
     });
   }
 
-  // ✅ Delete button
-  li.querySelector(".deleteBtn").addEventListener("click", async () => {
-    if (confirm("Delete this item?")) {
-      await deleteDoc(doc(db, "items", id));
-      alert("Item deleted.");
-    }
-  });
+  // ✅ Delete button (only if owner/admin)
+  const deleteBtn = li.querySelector(".deleteBtn");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", async () => {
+      if (confirm("Delete this item?")) {
+        await deleteDoc(doc(db, "items", id));
+        alert("Item deleted.");
+      }
+    });
+  }
 
   // ✅ Report button
   li.querySelector(".reportBtn").addEventListener("click", async () => {
@@ -69,6 +77,12 @@ function renderItem(itemData, id) {
 document.getElementById("itemForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const user = window.auth?.currentUser;
+  if (!user) {
+    alert("Please login to add items.");
+    return;
+  }
+
   const newItem = {
     type: document.getElementById("itemType").value,
     title: document.getElementById("title").value.trim(),
@@ -80,6 +94,7 @@ document.getElementById("itemForm").addEventListener("submit", async (e) => {
     claimed: false,
     reported: false,
     created: Date.now(),
+    ownerId: user.uid // ✅ store owner id
   };
 
   if (!newItem.title) {
