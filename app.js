@@ -1,4 +1,4 @@
-// ✅ Firebase Firestore imports
+// Firestore imports
 import {
   collection,
   addDoc,
@@ -11,8 +11,49 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const db = window.db; // from index.html
+// Auth imports
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+const db = window.db;
+const auth = window.auth;
 const itemsRef = collection(db, "items");
+
+// =========================
+// LOGIN / LOGOUT
+// =========================
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userInfo = document.getElementById("userInfo");
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (err) {
+    alert("Login failed: " + err.message);
+  }
+});
+
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+    userInfo.textContent = "Logged in as: " + user.email;
+  } else {
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+    userInfo.textContent = "";
+  }
+});
 
 // =========================
 // RENDER ITEM
@@ -21,10 +62,9 @@ function renderItem(itemData, id) {
   const li = document.createElement("li");
   li.className = "item-card";
 
-  // ✅ Check if current user is owner or admin
-  const user = window.auth?.currentUser;
+  const user = auth.currentUser;
   const isOwner = user && user.uid === itemData.ownerId;
-  const isAdmin = user && user.email === "admin@gmail.com"; // 🔑 change to your admin email
+  const isAdmin = user && user.email === "admin@gmail.com"; // 🔑 change admin email
 
   li.innerHTML = `
     <span class="badge ${itemData.type}">${itemData.type}</span>
@@ -42,7 +82,7 @@ function renderItem(itemData, id) {
     </div>
   `;
 
-  // ✅ Claim button
+  // Claim
   const claimBtn = li.querySelector(".claimBtn");
   if (claimBtn) {
     claimBtn.addEventListener("click", async () => {
@@ -51,7 +91,7 @@ function renderItem(itemData, id) {
     });
   }
 
-  // ✅ Delete button (only if owner/admin)
+  // Delete
   const deleteBtn = li.querySelector(".deleteBtn");
   if (deleteBtn) {
     deleteBtn.addEventListener("click", async () => {
@@ -62,7 +102,7 @@ function renderItem(itemData, id) {
     });
   }
 
-  // ✅ Report button
+  // Report
   const reportBtn = li.querySelector(".reportBtn");
   if (reportBtn) {
     reportBtn.addEventListener("click", async () => {
@@ -80,7 +120,7 @@ function renderItem(itemData, id) {
 document.getElementById("itemForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const user = window.auth?.currentUser;
+  const user = auth.currentUser;
   if (!user) {
     alert("Please login to add items.");
     return;
@@ -97,7 +137,7 @@ document.getElementById("itemForm").addEventListener("submit", async (e) => {
     claimed: false,
     reported: false,
     created: Date.now(),
-    ownerId: user.uid // ✅ store owner id
+    ownerId: user.uid
   };
 
   if (!newItem.title) {
@@ -132,10 +172,10 @@ onSnapshot(query(itemsRef, orderBy("created", "desc")), (snapshot) => {
 });
 
 // =========================
-// RESET ALL (Admin only!)
+// RESET ALL (Admin only)
 // =========================
 document.getElementById("resetAll").addEventListener("click", async () => {
-  const user = window.auth?.currentUser;
+  const user = auth.currentUser;
   if (!user || user.email !== "admin@gmail.com") {
     alert("Only admin can reset all data.");
     return;
