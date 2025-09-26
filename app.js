@@ -1,54 +1,3 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-  // ✅ Firebase config (replace with yours)
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
-
-  // ✅ Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  window.auth = auth; // make available to app.js
-
-  // ✅ Setup login/logout buttons
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const userInfo = document.getElementById("userInfo");
-
-  loginBtn.onclick = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      alert("Login failed: " + err.message);
-    }
-  };
-
-  logoutBtn.onclick = async () => {
-    await signOut(auth);
-  };
-
-  // ✅ Track user login state
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      userInfo.textContent = `Logged in as ${user.email}`;
-      loginBtn.style.display = "none";
-      logoutBtn.style.display = "inline-block";
-    } else {
-      userInfo.textContent = "Not logged in";
-      loginBtn.style.display = "inline-block";
-      logoutBtn.style.display = "none";
-    }
-  });
-</script>
-
 // ✅ Firebase Firestore imports
 import {
   collection,
@@ -75,7 +24,7 @@ function renderItem(itemData, id) {
   // ✅ Check if current user is owner or admin
   const user = window.auth?.currentUser;
   const isOwner = user && user.uid === itemData.ownerId;
-  const isAdmin = user && user.email === "admin@gmail.com"; // change to your admin email
+  const isAdmin = user && user.email === "admin@gmail.com"; // 🔑 change to your admin email
 
   li.innerHTML = `
     <span class="badge ${itemData.type}">${itemData.type}</span>
@@ -114,10 +63,13 @@ function renderItem(itemData, id) {
   }
 
   // ✅ Report button
-  li.querySelector(".reportBtn").addEventListener("click", async () => {
-    await updateDoc(doc(db, "items", id), { reported: true });
-    alert("Item reported!");
-  });
+  const reportBtn = li.querySelector(".reportBtn");
+  if (reportBtn) {
+    reportBtn.addEventListener("click", async () => {
+      await updateDoc(doc(db, "items", id), { reported: true });
+      alert("Item reported!");
+    });
+  }
 
   return li;
 }
@@ -180,9 +132,15 @@ onSnapshot(query(itemsRef, orderBy("created", "desc")), (snapshot) => {
 });
 
 // =========================
-// RESET ALL
+// RESET ALL (Admin only!)
 // =========================
 document.getElementById("resetAll").addEventListener("click", async () => {
+  const user = window.auth?.currentUser;
+  if (!user || user.email !== "admin@gmail.com") {
+    alert("Only admin can reset all data.");
+    return;
+  }
+
   if (confirm("Erase all data?")) {
     const snapshot = await getDocs(itemsRef);
     snapshot.forEach(async (docSnap) => {
@@ -191,5 +149,4 @@ document.getElementById("resetAll").addEventListener("click", async () => {
     alert("All items deleted.");
   }
 });
-
 
