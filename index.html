@@ -5,14 +5,13 @@
   <title>Lost & Found Portal</title>
   <link rel="stylesheet" href="styles.css">
 
-  <!-- ✅ Firebase SDKs -->
+  <!-- Firebase SDKs -->
   <script type="module">
-    // Import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    // Your Firebase config
+    // 🔹 Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
       authDomain: "lost-and-found-56582.firebaseapp.com",
@@ -23,45 +22,19 @@
       measurementId: "G-4Y29L5QEGV"
     };
 
-    // Initialize Firebase
+    // 🔹 Init Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Expose globally
+    // Expose globally so app.js can use
     window.db = db;
     window.auth = auth;
-
-    // ✅ Login / Logout handlers
-    window.login = async () => {
-      try {
-        await signInWithPopup(auth, provider);
-      } catch (err) {
-        alert("Login failed: " + err.message);
-      }
-    };
-
-    window.logout = async () => {
-      await signOut(auth);
-    };
-
-    // ✅ Auth state change
-    onAuthStateChanged(auth, (user) => {
-      const loginBtn = document.getElementById("loginBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const userInfo = document.getElementById("userInfo");
-
-      if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        userInfo.textContent = "Logged in as: " + user.email;
-      } else {
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        userInfo.textContent = "";
-      }
-    });
+    window.provider = provider;
+    window.signInWithPopup = signInWithPopup;
+    window.signOut = signOut;
+    window.onAuthStateChanged = onAuthStateChanged;
   </script>
 </head>
 <body>
@@ -75,8 +48,8 @@
     </ul>
     <div class="auth-controls">
       <span id="userInfo"></span>
-      <button id="loginBtn" onclick="login()">Login with Google</button>
-      <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+      <button id="loginBtn">Login with Google</button>
+      <button id="logoutBtn" style="display:none;">Logout</button>
     </div>
   </nav>
 
@@ -154,10 +127,12 @@
     <p>&copy; Made with ❤️ by DYNAMIC DYNAMOS</p>
   </footer>
 
-  <!-- ✅ Your app code -->
+  <!-- ✅ App Logic -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
+
+
 
 
 
