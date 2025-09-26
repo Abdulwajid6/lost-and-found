@@ -67,7 +67,7 @@ function renderItem(itemData, id) {
 
   const user = auth.currentUser;
   const isOwner = user && user.uid === itemData.ownerId;
-  const isAdmin = user && user.email === "admin@gmail.com"; // 🔑 change admin email
+  const isAdmin = user && user.email === "abdulwajidm0@gmail.com"; // 🔑 change admin email
 
   li.innerHTML = `
     <span class="badge ${itemData.type}">${itemData.type}</span>
@@ -179,7 +179,7 @@ onSnapshot(query(itemsRef, orderBy("created", "desc")), (snapshot) => {
 // =========================
 document.getElementById("resetAll").addEventListener("click", async () => {
   const user = auth.currentUser;
-  if (!user || user.email !== "admin@gmail.com") {
+  if (!user || user.email !== "abdulwajidm0@gmail.com") {
     alert("Only admin can reset all data.");
     return;
   }
@@ -192,5 +192,6 @@ document.getElementById("resetAll").addEventListener("click", async () => {
     alert("All items deleted.");
   }
 });
+
 
 
