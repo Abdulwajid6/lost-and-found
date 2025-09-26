@@ -32,12 +32,15 @@ const userInfo = document.getElementById("userInfo");
 
 loginBtn.addEventListener("click", async () => {
   try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    console.log("Login button clicked ✅"); // debug
+    const result = await window.signInWithPopup(auth, window.provider);
+    console.log("Login success:", result.user);
   } catch (err) {
+    console.error("Login failed:", err);
     alert("Login failed: " + err.message);
   }
 });
+
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
@@ -189,4 +192,5 @@ document.getElementById("resetAll").addEventListener("click", async () => {
     alert("All items deleted.");
   }
 });
+
 
