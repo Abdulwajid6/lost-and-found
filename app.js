@@ -26,14 +26,17 @@ const itemsRef = collection(db, "items");
 // =========================
 // LOGIN / LOGOUT
 // =========================
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+
+const loginBtn = document.getElementById("loginBtnBig"); // BIG login button on login screen
+const logoutBtn = document.getElementById("logoutBtn");  // navbar logout
 const userInfo = document.getElementById("userInfo");
 
 loginBtn.addEventListener("click", async () => {
   try {
-    console.log("Login button clicked ✅"); // debug
-    const result = await window.signInWithPopup(auth, window.provider);
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
     console.log("Login success:", result.user);
   } catch (err) {
     console.error("Login failed:", err);
@@ -41,19 +44,20 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
 });
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
+    // Show main content
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
     userInfo.textContent = "Logged in as: " + user.email;
   } else {
-    loginBtn.style.display = "inline-block";
-    logoutBtn.style.display = "none";
+    // Show login screen
+    loginScreen.style.display = "flex";
+    mainContent.style.display = "none";
     userInfo.textContent = "";
   }
 });
@@ -192,6 +196,3 @@ document.getElementById("resetAll").addEventListener("click", async () => {
     alert("All items deleted.");
   }
 });
-
-
-
