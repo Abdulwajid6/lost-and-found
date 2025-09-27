@@ -27,10 +27,10 @@ const itemsRef = collection(db, "items");
 // LOGIN / LOGOUT
 // =========================
 const loginScreen = document.getElementById("loginScreen");
-const mainContent = document.getElementById("mainContent");
+const appContent = document.getElementById("appContent");
 
-const loginBtn = document.getElementById("loginBtnBig"); // BIG login button on login screen
-const logoutBtn = document.getElementById("logoutBtn");  // navbar logout
+const loginBtn = document.getElementById("loginBtnBig"); // ✅ fixed id
+const logoutBtn = document.getElementById("logoutBtn");
 const userInfo = document.getElementById("userInfo");
 
 loginBtn.addEventListener("click", async () => {
@@ -50,18 +50,17 @@ logoutBtn.addEventListener("click", async () => {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
-    document.getElementById("userInfo").textContent = `Hello, ${user.displayName}`;
-    document.getElementById("logoutBtn").style.display = "inline-block";
+    loginScreen.style.display = "none";
+    appContent.style.display = "block";
+    userInfo.textContent = `Hello, ${user.displayName}`;
+    logoutBtn.style.display = "inline-block";
   } else {
-    document.getElementById("loginScreen").style.display = "flex";
-    document.getElementById("appContent").style.display = "none";
-    document.getElementById("userInfo").textContent = "";
-    document.getElementById("logoutBtn").style.display = "none";
+    loginScreen.style.display = "flex";
+    appContent.style.display = "none";
+    userInfo.textContent = "";
+    logoutBtn.style.display = "none";
   }
 });
-
 
 // =========================
 // RENDER ITEM
