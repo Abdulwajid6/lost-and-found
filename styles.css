@@ -276,3 +276,29 @@ footer {
     grid-column: span 1;
   }
 }
+.login-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+}
+
+#loginBtnBig {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: #fff;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#loginBtnBig:hover {
+  background: #eee;
+}
+
+
