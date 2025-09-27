@@ -288,7 +288,7 @@ footer {
 }
 
 /* LOGIN CARD */
-/* ANIMATED GRADIENT BACKGROUND */
+/* Full-screen login background */
 .login-screen {
   height: 100vh;
   display: flex;
@@ -296,23 +296,24 @@ footer {
   align-items: center;
   background: linear-gradient(-45deg, #4facfe, #00f2fe, #43e97b, #f8ffae);
   background-size: 400% 400%;
-  animation: gradientMove 10s ease infinite;
-  overflow: hidden;
+  animation: gradientMove 12s ease infinite;
   position: relative;
+  overflow: hidden;
 }
 
+/* Animated background */
 @keyframes gradientMove {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* FLOATING ICONS */
+/* Floating emojis/icons */
 .login-screen::before, .login-screen::after {
   content: "🔑";
   position: absolute;
   font-size: 4rem;
-  opacity: 0.1;
+  opacity: 0.15;
   animation: float 6s ease-in-out infinite;
 }
 .login-screen::after {
@@ -322,6 +323,51 @@ footer {
   animation-delay: 3s;
 }
 @keyframes float {
-  0%, 100% {transform: translateY(0);}
-  50% {transform: translateY(-20px);}
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25px); }
+}
+
+/* Login card */
+.login-card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+  color: #fff;
+  width: 350px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  animation: fadeIn 1.5s ease;
+}
+
+.login-card h1 {
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.login-card p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.login-card button {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: transform 0.2s, background 0.3s;
+}
+.login-card button:hover {
+  background: #43e97b;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
