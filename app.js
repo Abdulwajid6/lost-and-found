@@ -50,17 +50,18 @@ logoutBtn.addEventListener("click", async () => {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Show main content
-    loginScreen.style.display = "none";
-    mainContent.style.display = "block";
-    userInfo.textContent = "Logged in as: " + user.email;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
+    document.getElementById("userInfo").textContent = `Hello, ${user.displayName}`;
+    document.getElementById("logoutBtn").style.display = "inline-block";
   } else {
-    // Show login screen
-    loginScreen.style.display = "flex";
-    mainContent.style.display = "none";
-    userInfo.textContent = "";
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("appContent").style.display = "none";
+    document.getElementById("userInfo").textContent = "";
+    document.getElementById("logoutBtn").style.display = "none";
   }
 });
+
 
 // =========================
 // RENDER ITEM
@@ -196,3 +197,4 @@ document.getElementById("resetAll").addEventListener("click", async () => {
     alert("All items deleted.");
   }
 });
+
