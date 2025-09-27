@@ -35,15 +35,21 @@
   </script>
 </head>
 <body>
-  <!-- 🔹 LOGIN SCREEN -->
-<!-- 🔹 LOGIN SCREEN -->
-<section id="loginScreen" class="login-screen">
+  
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
   <div class="login-card">
-    <h1>🔑 Lost & Found Portal</h1>
-    <p>Please login to continue</p>
-    <button id="loginBtnBig">Login with Google</button>
+    <h1>🔐 Lost & Found Portal</h1>
+    <p>Login to continue</p>
+    <button id="loginBtn">Login with Google</button>
   </div>
-</section>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<main id="appContent" style="display:none;">
+  <!-- your whole existing app here -->
+</main>
+
 
   <!-- 🔹 MAIN CONTENT (HIDDEN UNTIL LOGIN) -->
   <div id="mainContent" style="display:none;">
@@ -140,6 +146,7 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
+
 
 
 
