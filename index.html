@@ -4,6 +4,37 @@
   <meta charset="UTF-8">
   <title>Lost & Found Portal</title>
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
+      authDomain: "lost-and-found-56582.firebaseapp.com",
+      projectId: "lost-and-found-56582",
+      storageBucket: "lost-and-found-56582.firebasestorage.app",
+      messagingSenderId: "508496273757",
+      appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4",
+      measurementId: "G-4Y29L5QEGV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    window.db = db;
+    window.auth = auth;
+    window.provider = provider;
+    window.signInWithPopup = signInWithPopup;
+    window.signOut = signOut;
+    window.onAuthStateChanged = onAuthStateChanged;
+  </script>
+</head>
+<body>
   
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-screen">
@@ -109,4 +140,5 @@
 <script type="module" src="app.js"></script>
 </body>
 </html>
+
 
