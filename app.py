@@ -1,11 +1,18 @@
 from flask import Flask, request, jsonify, send_from_directory
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
 app = Flask(__name__)
 
-# 🔥 Firebase initialization
-cred = credentials.Certificate("firebase_key.json")
+# 🔐 Firebase initialization (local + Render)
+if os.environ.get("FIREBASE_KEY"):
+    firebase_json = json.loads(os.environ.get("FIREBASE_KEY"))
+    cred = credentials.Certificate(firebase_json)
+else:
+    cred = credentials.Certificate("firebase_key.json")
+
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -29,25 +36,3 @@ def get_items():
 
 if __name__ == "__main__":
     app.run(debug=True)
-    
-import os, json
-from firebase_admin import credentials
-
-if os.getenv("FIREBASE_KEY"):
-    firebase_json = json.loads(os.getenv("FIREBASE_KEY"))
-    cred = credentials.Certificate(firebase_json)
-else:
-import os
-import json
-import firebase_admin
-from firebase_admin import credentials, firestore
-
-# 🔐 Firebase initialization (local + Render)
-if os.environ.get("FIREBASE_KEY"):
-    firebase_json = json.loads(os.environ.get("FIREBASE_KEY"))
-    cred = credentials.Certificate(firebase_json)
-else:
-    cred = credentials.Certificate("firebase_key.json")
-
-firebase_admin.initialize_app(cred)
-db = firestore.client()
