@@ -37,6 +37,16 @@ if os.getenv("FIREBASE_KEY"):
     firebase_json = json.loads(os.getenv("FIREBASE_KEY"))
     cred = credentials.Certificate(firebase_json)
 else:
+import os
+import json
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# 🔐 Firebase initialization (local + Render)
+if os.environ.get("FIREBASE_KEY"):
+    firebase_json = json.loads(os.environ.get("FIREBASE_KEY"))
+    cred = credentials.Certificate(firebase_json)
+else:
     cred = credentials.Certificate("firebase_key.json")
 
 firebase_admin.initialize_app(cred)
