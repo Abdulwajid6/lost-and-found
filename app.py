@@ -6,7 +6,12 @@ from firebase_admin import credentials, firestore
 app = Flask(__name__)
 CORS(app)
 
-cred = credentials.Certificate("firebase_key.json")
+import os, json
+from firebase_admin import credentials
+
+firebase_key = json.loads(os.environ.get("FIREBASE_KEY"))
+cred = credentials.Certificate(firebase_key)
+
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
