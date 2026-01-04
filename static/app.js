@@ -1,6 +1,5 @@
 import {
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -9,7 +8,7 @@ const auth = window.auth;
 const provider = window.provider;
 const API = "/items";
 
-// DOM ELEMENTS (CRITICAL FIX)
+/* DOM ELEMENTS */
 const loginBtnBig = document.getElementById("loginBtnBig");
 const logoutBtn = document.getElementById("logoutBtn");
 const loginScreen = document.getElementById("loginScreen");
@@ -18,40 +17,43 @@ const userInfo = document.getElementById("userInfo");
 const itemForm = document.getElementById("itemForm");
 const itemType = document.getElementById("itemType");
 const title = document.getElementById("title");
-const lostList = document.getElementById("lostList");
-const foundList = document.getElementById("foundList");
-const reportedList = document.getElementById("reportedList");
 
-// ✅ LOGIN
-loginBtnBig.onclick = () => {
-import { signInWithPopup } from 
-"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-loginBtnBig.onclick = async () => {
+/* ✅ LOGIN */
+loginBtnBig.addEventListener("click", async () => {
   try {
     await signInWithPopup(auth, provider);
-  } catch (e) {
-    console.error(e);
-    alert(e.message);
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
   }
-};
-
-};
-
-// ✅ LOGOUT
-logoutBtn.onclick = () => signOut(auth);
-
-// ✅ AUTH STATE
-onAuthStateChanged(auth, (user) => {
-  loginScreen.style.display = user ? "none" : "flex";
-  appContent.style.display = user ? "block" : "none";
-  userInfo.textContent = user ? `Hello, ${user.displayName}` : "";
 });
 
-// ✅ ADD ITEM
-itemForm.onsubmit = async (e) => {
+/* ✅ LOGOUT */
+logoutBtn.addEventListener("click", () => {
+  signOut(auth);
+});
+
+/* ✅ AUTH STATE HANDLER */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginScreen.style.display = "none";
+    appContent.style.display = "block";
+    userInfo.textContent = `Hello, ${user.displayName}`;
+  } else {
+    loginScreen.style.display = "flex";
+    appContent.style.display = "none";
+    userInfo.textContent = "";
+  }
+});
+
+/* ✅ ADD ITEM */
+itemForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!auth.currentUser) return alert("Login required");
+
+  if (!auth.currentUser) {
+    alert("Please login first");
+    return;
+  }
 
   await fetch(API, {
     method: "POST",
@@ -67,4 +69,4 @@ itemForm.onsubmit = async (e) => {
   });
 
   itemForm.reset();
-};
+});
