@@ -24,11 +24,19 @@ const reportedList = document.getElementById("reportedList");
 
 // ✅ LOGIN
 loginBtnBig.onclick = () => {
-  signInWithRedirect(auth, provider);
+import { signInWithPopup } from 
+"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+loginBtnBig.onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error(e);
+    alert(e.message);
+  }
 };
 
-// Handle redirect result
-getRedirectResult(auth).catch(console.error);
+};
 
 // ✅ LOGOUT
 logoutBtn.onclick = () => signOut(auth);

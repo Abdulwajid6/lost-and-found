@@ -6,22 +6,22 @@
   <link rel="stylesheet" href="/static/styles.css" />
 
   <!-- Firebase INIT (ONLY ONCE) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
-      authDomain: "lost-and-found-56582.firebaseapp.com",
-      projectId: "lost-and-found-56582",
-      appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
+    authDomain: "lost-and-found-56582.firebaseapp.com",
+    projectId: "lost-and-found-56582",
+    appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4"
+  };
 
-    const app = initializeApp(firebaseConfig);
+  const app = initializeApp(firebaseConfig);
+  window.auth = getAuth(app);
+  window.provider = new GoogleAuthProvider();
+</script>
 
-    window.auth = getAuth(app);
-    window.provider = new GoogleAuthProvider();
-  </script>
 </head>
 
 <body>
