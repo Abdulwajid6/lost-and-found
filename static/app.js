@@ -1,24 +1,43 @@
+// ================= FIREBASE AUTH =================
 const auth = window.auth;
+const provider = new firebase.auth.GoogleAuthProvider();
+
 const API = "/items";
 
-// LOGIN
-loginBtnBig.onclick = async () => {
-  const res = await signInWithPopup(auth, provider);
+// ================= LOGIN =================
+loginBtnBig.onclick = () => {
+  firebase.auth().signInWithRedirect(provider);
 };
 
+// HANDLE REDIRECT RESULT
+firebase.auth()
+  .getRedirectResult()
+  .then((result) => {
+    if (result.user) {
+      console.log("Login successful:", result.user.displayName);
+    }
+  })
+  .catch((error) => {
+    console.error("Login error:", error);
+    alert(error.message);
+  });
+
+// ================= LOGOUT =================
 logoutBtn.onclick = async () => {
-  await signOut(auth);
+  await auth.signOut();
 };
 
-onAuthStateChanged(auth, user => {
+// ================= AUTH STATE =================
+firebase.auth().onAuthStateChanged((user) => {
   loginScreen.style.display = user ? "none" : "flex";
   appContent.style.display = user ? "block" : "none";
   userInfo.textContent = user ? `Hello, ${user.displayName}` : "";
 });
 
-// ADD ITEM
+// ================= ADD ITEM =================
 itemForm.onsubmit = async (e) => {
   e.preventDefault();
+
   const user = auth.currentUser;
   if (!user) return alert("Login required");
 
@@ -46,18 +65,23 @@ itemForm.onsubmit = async (e) => {
   loadItems();
 };
 
-// LOAD ITEMS
+// ================= LOAD ITEMS =================
 async function loadItems() {
   const res = await fetch(API);
   const items = await res.json();
 
-  lostList.innerHTML = foundList.innerHTML = reportedList.innerHTML = "";
+  lostList.innerHTML = "";
+  foundList.innerHTML = "";
+  reportedList.innerHTML = "";
 
   items.forEach(item => {
     const li = document.createElement("li");
     li.className = "item-card";
-    li.innerHTML = `<span class="badge ${item.type}">${item.type}</span>
-      <h3>${item.title}</h3><p>${item.desc || ""}</p>`;
+    li.innerHTML = `
+      <span class="badge ${item.type}">${item.type}</span>
+      <h3>${item.title}</h3>
+      <p>${item.desc || ""}</p>
+    `;
 
     if (item.reported) reportedList.appendChild(li);
     else if (item.type === "lost") lostList.appendChild(li);
