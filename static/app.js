@@ -1,187 +1,136 @@
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-const auth = window.auth;
-const provider = window.provider;
-const API = "/items";
+// ================= CONFIG =================
 const ADMIN_EMAIL = "abdulwajidm0@gmail.com";
 
-/* ================= DOM ================= */
-const loginScreen = document.getElementById("loginScreen");
-const appContent = document.getElementById("appContent");
-const loginBtn = document.getElementById("loginBtnBig");
-const logoutBtn = document.getElementById("logoutBtn");
-const userInfo = document.getElementById("userInfo");
+const auth = firebase.auth();
 
-const itemForm = document.getElementById("itemForm");
-const lostList = document.getElementById("lostList");
-const foundList = document.getElementById("foundList");
-const reportedList = document.getElementById("reportedList");
-const resetAllBtn = document.getElementById("resetAll");
+// ================= DOM ELEMENTS =================
+const lostList = document.getElementById("lostItems");
+const foundList = document.getElementById("foundItems");
+const reportedList = document.getElementById("reportedItems");
 
-/* ================= AUTH ================= */
-loginBtn.addEventListener("click", async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (e) {
-    alert(e.message);
-  }
-});
-
-logoutBtn.addEventListener("click", () => signOut(auth));
-
-onAuthStateChanged(auth, (user) => {
+// ================= AUTH STATE =================
+auth.onAuthStateChanged(user => {
   if (user) {
-    loginScreen.style.display = "none";
-    appContent.style.display = "block";
-    userInfo.textContent = `Hello, ${user.displayName}`;
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "inline-block";
+    loadItems();
   } else {
-    loginScreen.style.display = "flex";
-    appContent.style.display = "none";
-    userInfo.textContent = "";
+    document.getElementById("loginBtn").style.display = "inline-block";
+    document.getElementById("logoutBtn").style.display = "none";
   }
 });
 
-/* ================= LOAD ITEMS ================= */
+// ================= LOGIN =================
+function login() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+}
+
+// ================= LOGOUT =================
+function logout() {
+  auth.signOut();
+}
+
+// ================= ADD ITEM =================
+async function addItem() {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Please login first");
+    return;
+  }
+
+  const data = {
+    type: document.getElementById("type").value,
+    title: document.getElementById("title").value,
+    description: document.getElementById("description").value,
+    location: document.getElementById("location").value,
+    date: document.getElementById("date").value,
+    contact: document.getElementById("contact").value,
+    photo: document.getElementById("photo").value,
+    ownerId: user.uid,
+    email: user.email,
+    claimed: false,
+    reported: false,
+    created: new Date().toISOString()
+  };
+
+  await fetch("/items", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  document.getElementById("itemForm").reset();
+  loadItems();
+}
+
+// ================= LOAD ITEMS =================
 async function loadItems() {
-  const res = await fetch(API);
+  const res = await fetch("/items");
   const items = await res.json();
+  const user = auth.currentUser;
 
   lostList.innerHTML = "";
   foundList.innerHTML = "";
   reportedList.innerHTML = "";
 
   items.forEach(item => {
-    const li = renderItem(item);
+    const card = document.createElement("div");
+    card.className = "item-card";
+
+    card.innerHTML = `
+      <span class="tag ${item.type.toLowerCase()}">${item.type}</span>
+      ${item.reported ? `<span class="tag reported">Reported</span>` : ""}
+      <h4>${item.title}</h4>
+      <p>${item.description}</p>
+      <p><b>Location:</b> ${item.location} • <b>Date:</b> ${item.date}</p>
+      <p><b>Contact:</b> ${item.contact}</p>
+
+      <div class="actions">
+        ${!item.claimed ? `<button onclick="markClaimed('${item.id}')">Mark Claimed</button>` : ""}
+        ${!item.reported ? `<button onclick="reportItem('${item.id}')">Report</button>` : ""}
+        ${
+          user &&
+          (user.email === ADMIN_EMAIL || user.uid === item.ownerId)
+            ? `<button class="danger" onclick="deleteItem('${item.id}')">Delete</button>`
+            : ""
+        }
+      </div>
+    `;
 
     if (item.reported) {
-      reportedList.appendChild(li);
-    } else if (item.type === "lost") {
-      lostList.appendChild(li);
+      reportedList.appendChild(card);
+    } else if (item.type === "Lost") {
+      lostList.appendChild(card);
     } else {
-      foundList.appendChild(li);
+      foundList.appendChild(card);
     }
   });
 }
 
-/* ================= RENDER ITEM ================= */
-function renderItem(item) {
-  const li = document.createElement("li");
-  li.className = "item-card";
-
-  const user = auth.currentUser;
-  const isOwner = user && user.uid === item.ownerId;
-  const isAdmin = user && user.email === ADMIN_EMAIL;
-
-  li.innerHTML = `
-    <span class="badge ${item.type}">${item.type}</span>
-    ${item.claimed ? `<span class="badge claimed">Claimed</span>` : ""}
-    ${item.reported ? `<span class="badge reported">Reported</span>` : ""}
-    <h3>${item.title}</h3>
-    <p>${item.desc || ""}</p>
-    <p><b>Location:</b> ${item.location || ""} • <b>Date:</b> ${item.date || ""}</p>
-    <p><b>Contact:</b> ${item.contact || ""}</p>
-    ${item.photo ? `<img src="${item.photo}" width="120">` : ""}
-    <div class="item-actions">
-      ${!item.claimed ? `<button class="claimBtn">Mark Claimed</button>` : ""}
-      <button class="reportBtn">Report</button>
-      ${(isOwner || isAdmin) ? `<button class="deleteBtn">Delete</button>` : ""}
-    </div>
-  `;
-
-  /* CLAIM */
-  li.querySelector(".claimBtn")?.addEventListener("click", async () => {
-    await fetch(`${API}/${item.id}/claim`, { method: "PUT" });
-    loadItems();
-  });
-
-  /* REPORT */
-  li.querySelector(".reportBtn")?.addEventListener("click", async () => {
-    await fetch(`${API}/${item.id}/report`, { method: "PUT" });
-    loadItems();
-  });
-
-  /* DELETE */
-  li.querySelector(".deleteBtn")?.addEventListener("click", async () => {
-    if (!confirm("Delete this item?")) return;
-
-    await fetch(`${API}/${item.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: auth.currentUser.uid,
-        email: auth.currentUser.email
-      })
-    });
-
-    loadItems();
-  });
-
-  return li;
+// ================= ACTIONS =================
+async function markClaimed(id) {
+  await fetch(`/items/${id}/claim`, { method: "PUT" });
+  loadItems();
 }
 
-/* ================= ADD ITEM ================= */
-itemForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+async function reportItem(id) {
+  await fetch(`/items/${id}/report`, { method: "PUT" });
+  loadItems();
+}
 
-  if (!auth.currentUser) {
-    alert("Login required");
-    return;
-  }
+async function deleteItem(id) {
+  const user = auth.currentUser;
+  if (!confirm("Are you sure you want to delete this item?")) return;
 
-  const newItem = {
-    type: itemType.value,
-    title: title.value.trim(),
-    desc: description.value.trim(),
-    location: location.value.trim(),
-    date: date.value || new Date().toISOString().slice(0, 10),
-    contact: contact.value.trim(),
-    photo: photo.value.trim(),
-    claimed: false,
-    reported: false,
-    created: Date.now(),
-    ownerId: auth.currentUser.uid
-  };
-
-  await fetch(API, {
-    method: "POST",
+  await fetch(`/items/${id}`, {
+    method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newItem)
+    body: JSON.stringify({
+      userId: user.uid,
+      email: user.email
+    })
   });
 
-  itemForm.reset();
   loadItems();
-});
-
-/* ================= RESET ALL (ADMIN) ================= */
-resetAllBtn?.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user || user.email !== ADMIN_EMAIL) {
-    alert("Only admin can reset");
-    return;
-  }
-
-  if (!confirm("Delete ALL items?")) return;
-
-  const res = await fetch(API);
-  const items = await res.json();
-
-  for (const item of items) {
-    await fetch(`${API}/${item.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.uid,
-        email: user.email
-      })
-    });
-  }
-
-  loadItems();
-});
-
-/* ================= INITIAL LOAD ================= */
-loadItems();
+}

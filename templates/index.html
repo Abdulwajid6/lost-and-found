@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Lost & Found Portal</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="styles.css">
 
-  <!-- Firebase INIT (ONLY ONCE) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
-    authDomain: "lost-and-found-56582.firebaseapp.com",
-    projectId: "lost-and-found-56582",
-    appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAosHCiVohUlnyPd9FRsgW5gccl21hBlvA",
+      authDomain: "lost-and-found-56582.firebaseapp.com",
+      projectId: "lost-and-found-56582",
+      storageBucket: "lost-and-found-56582.firebasestorage.app",
+      messagingSenderId: "508496273757",
+      appId: "1:508496273757:web:a3b3fa91d03bf77e0c48b4",
+      measurementId: "G-4Y29L5QEGV"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  window.auth = getAuth(app);
-  window.provider = new GoogleAuthProvider();
-</script>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
+    window.db = db;
+    window.auth = auth;
+    window.provider = provider;
+    window.signInWithPopup = signInWithPopup;
+    window.signOut = signOut;
+    window.onAuthStateChanged = onAuthStateChanged;
+  </script>
 </head>
-
 <body>
-
+  
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
@@ -35,25 +45,99 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN APP (hidden until login) -->
 <div id="appContent" style="display:none;">
-  <span id="userInfo"></span>
-  <button id="logoutBtn">Logout</button>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">Lost & Found</div>
+    <ul class="nav-links">
+      <li><a href="#formSection">Add Item</a></li>
+      <li><a href="#lostFound">Items</a></li>
+      <li><a href="#reported">Reported</a></li>
+    </ul>
+    <div class="auth-controls">
+      <span id="userInfo"></span>
+      <button id="loginBtn" onclick="login()">Login</button>
+<button id="logoutBtn" onclick="logout()" style="display:none">Logout</button>
 
-  <form id="itemForm">
-    <select id="itemType">
-      <option value="lost">Lost</option>
-      <option value="found">Found</option>
-    </select>
-    <input id="title" placeholder="Title" required />
-    <button type="submit">Add</button>
-  </form>
+    </div>
+  </nav>
 
-  <ul id="lostList"></ul>
-  <ul id="foundList"></ul>
-  <ul id="reportedList"></ul>
-</div>
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Lost something? Found something?</h1>
+    <p>Report or search lost and found items easily.</p>
+    <a href="#formSection" class="cta-btn">Report Now</a>
+  </section>
 
-<script type="module" src="/static/app.js"></script>
+  <main>
+    <!-- FORM -->
+    <section id="formSection" class="form-section">
+      <h2>Add Item</h2>
+      <form id="itemForm">
+        <label>Type:
+          <select id="itemType">
+            <option value="lost">Lost</option>
+            <option value="found">Found</option>
+          </select>
+        </label>
+        <label>Title: <input type="text" id="title" required></label>
+        <label>Description: <input type="text" id="description"></label>
+        <label>Location: <input type="text" id="location"></label>
+        <label>Date: <input type="date" id="date"></label>
+        <label>Contact: <input type="text" id="contact"></label>
+        <label>Photo URL: <input type="text" id="photo"></label>
+        <button type="submit">Add Item</button>
+        <button type="button" id="clearForm">Clear</button>
+      </form>
+    </section>
+
+    <!-- LOST/FOUND LIST -->
+    <section id="lostFound" class="list-section">
+      <h2>Lost & Found Items</h2>
+      <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search items...">
+        <select id="filterSelect">
+          <option value="all">All</option>
+          <option value="lost">Lost</option>
+          <option value="found">Found</option>
+          <option value="claimed">Claimed</option>
+        </select>
+      </div>
+      <div class="buttons">
+        <button id="exportBtn">Export</button>
+        <button id="importBtn">Import</button>
+        <input type="file" id="importFile" hidden>
+        <button id="resetAll">Reset</button>
+      </div>
+
+      <h3>Lost Items</h3>
+      <ul id="lostList"></ul>
+
+      <h3>Found Items</h3>
+      <ul id="foundList"></ul>
+    </section>
+
+    <!-- REPORTED SECTION -->
+    <section id="reported" class="list-section">
+      <h2>Reported Items</h2>
+      <ul id="reportedList"></ul>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about-section">
+      <h2>About</h2>
+      <p>This portal helps students report and track lost & found items on campus. 
+         Submit details and help reunite items with their owners.</p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; Made with ❤️ by DYNAMIC DYNAMOS</p>
+  </footer>
+
+<!-- ✅ App Logic -->
+<script type="module" src="app.js"></script>
 </body>
 </html>
