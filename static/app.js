@@ -1,37 +1,33 @@
-// ================= FIREBASE AUTH =================
-const auth = window.auth;
-const provider = new firebase.auth.GoogleAuthProvider();
+import {
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+const auth = window.auth;
+const provider = new GoogleAuthProvider();
 const API = "/items";
 
 // ================= LOGIN =================
 loginBtnBig.onclick = () => {
-  firebase.auth().signInWithRedirect(provider);
+  signInWithRedirect(auth, provider);
 };
 
-// HANDLE REDIRECT RESULT
-firebase.auth()
-  .getRedirectResult()
-  .then((result) => {
-    if (result.user) {
-      console.log("Login successful:", result.user.displayName);
-    }
-  })
-  .catch((error) => {
-    console.error("Login error:", error);
-    alert(error.message);
-  });
+getRedirectResult(auth).catch(console.error);
 
 // ================= LOGOUT =================
 logoutBtn.onclick = async () => {
-  await auth.signOut();
+  await signOut(auth);
 };
 
 // ================= AUTH STATE =================
-firebase.auth().onAuthStateChanged((user) => {
+onAuthStateChanged(auth, (user) => {
   loginScreen.style.display = user ? "none" : "flex";
   appContent.style.display = user ? "block" : "none";
   userInfo.textContent = user ? `Hello, ${user.displayName}` : "";
+  loadItems();
 });
 
 // ================= ADD ITEM =================
@@ -74,14 +70,43 @@ async function loadItems() {
   foundList.innerHTML = "";
   reportedList.innerHTML = "";
 
+  const user = auth.currentUser;
+
   items.forEach(item => {
     const li = document.createElement("li");
     li.className = "item-card";
+
+    const isOwner = user && user.uid === item.ownerId;
+    const isAdmin = user && user.email === "abdulwajidm0@gmail.com";
+
     li.innerHTML = `
       <span class="badge ${item.type}">${item.type}</span>
+      ${item.claimed ? `<span class="badge claimed">Claimed</span>` : ""}
+      ${item.reported ? `<span class="badge reported">Reported</span>` : ""}
       <h3>${item.title}</h3>
       <p>${item.desc || ""}</p>
+
+      <div class="item-actions">
+        ${!item.claimed ? `<button class="claimBtn">Mark Claimed</button>` : ""}
+        <button class="reportBtn">Report</button>
+        ${(isOwner || isAdmin) ? `<button class="deleteBtn">Delete</button>` : ""}
+      </div>
     `;
+
+    li.querySelector(".claimBtn")?.addEventListener("click", async () => {
+      await fetch(`${API}/${item.id}/claim`, { method: "PUT" });
+      loadItems();
+    });
+
+    li.querySelector(".reportBtn")?.addEventListener("click", async () => {
+      await fetch(`${API}/${item.id}/report`, { method: "PUT" });
+      loadItems();
+    });
+
+    li.querySelector(".deleteBtn")?.addEventListener("click", async () => {
+      await fetch(`${API}/${item.id}`, { method: "DELETE" });
+      loadItems();
+    });
 
     if (item.reported) reportedList.appendChild(li);
     else if (item.type === "lost") lostList.appendChild(li);
