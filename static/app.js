@@ -22,6 +22,15 @@ const foundList = document.getElementById("foundList");
 const reportedList = document.getElementById("reportedList");
 const resetAllBtn = document.getElementById("resetAll");
 
+/* ===== ADD ITEM INPUTS (FIX) ===== */
+const itemType = document.getElementById("itemType");
+const title = document.getElementById("title");
+const description = document.getElementById("description");
+const location = document.getElementById("location");
+const date = document.getElementById("date");
+const contact = document.getElementById("contact");
+const photo = document.getElementById("photo");
+
 /* ================= AUTH ================= */
 loginBtn.addEventListener("click", async () => {
   try {
@@ -38,6 +47,7 @@ onAuthStateChanged(auth, (user) => {
     loginScreen.style.display = "none";
     appContent.style.display = "block";
     userInfo.textContent = `Hello, ${user.displayName}`;
+    loadItems();
   } else {
     loginScreen.style.display = "flex";
     appContent.style.display = "none";
@@ -92,19 +102,16 @@ function renderItem(item) {
     </div>
   `;
 
-  /* CLAIM */
   li.querySelector(".claimBtn")?.addEventListener("click", async () => {
     await fetch(`${API}/${item.id}/claim`, { method: "PUT" });
     loadItems();
   });
 
-  /* REPORT */
   li.querySelector(".reportBtn")?.addEventListener("click", async () => {
     await fetch(`${API}/${item.id}/report`, { method: "PUT" });
     loadItems();
   });
 
-  /* DELETE */
   li.querySelector(".deleteBtn")?.addEventListener("click", async () => {
     if (!confirm("Delete this item?")) return;
 
@@ -182,6 +189,3 @@ resetAllBtn?.addEventListener("click", async () => {
 
   loadItems();
 });
-
-/* ================= INITIAL LOAD ================= */
-loadItems();
