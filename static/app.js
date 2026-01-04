@@ -93,18 +93,31 @@ async function loadItems() {
       </div>
     `;
 
+    // ===== CLAIM =====
     li.querySelector(".claimBtn")?.addEventListener("click", async () => {
       await fetch(`${API}/${item.id}/claim`, { method: "PUT" });
       loadItems();
     });
 
+    // ===== REPORT =====
     li.querySelector(".reportBtn")?.addEventListener("click", async () => {
       await fetch(`${API}/${item.id}/report`, { method: "PUT" });
       loadItems();
     });
 
+    // ===== DELETE (FIXED) =====
     li.querySelector(".deleteBtn")?.addEventListener("click", async () => {
-      await fetch(`${API}/${item.id}`, { method: "DELETE" });
+      if (!confirm("Delete this item?")) return;
+
+      await fetch(`${API}/${item.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: auth.currentUser.uid,
+          email: auth.currentUser.email
+        })
+      });
+
       loadItems();
     });
 
